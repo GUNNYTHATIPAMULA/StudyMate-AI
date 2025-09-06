@@ -5,7 +5,7 @@ import { Sidebar } from 'primereact/sidebar';
 import { Button } from 'primereact/button';
 import LeftBar from './LeftBar';
 import ChatBot from './ChatBot';
-import { TableOfContents, TrendingUp, BookOpen, Users, Award, Calendar, BarChart3, MessageCircle, Bot } from 'lucide-react';
+import { TableOfContents, TrendingUp, BookOpen, Users, Award, Calendar, BarChart3, MessageCircle, Bot, ArrowLeft } from 'lucide-react';
 import { doc, getDoc, getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { app } from '../firebase/firebase';
@@ -374,10 +374,13 @@ const DashBoard = () => {
         onHide={() => setChatbotExpanded(false)}
         style={{ width: '600px' }}
       >
+
         <div className="h-full flex w-full flex-col">
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 text-white w-full flex items-center">
+            <ArrowLeft type='button' className='mr-5' onClick={() => setChatbotExpanded(false)} /> 
+
             <Bot className="h-6 w-6 mr-2" />
-            <h3 className="text-lg font-semibold">StudyHub AI Assistant</h3>
+            <h3 className="text-lg font-semibold py-2 mt-1">  StudyHub AI Assistant</h3>
             <Button 
               icon="pi pi-times" 
               className="p-button-text p-button-lg p-button-plain ml-auto" 
