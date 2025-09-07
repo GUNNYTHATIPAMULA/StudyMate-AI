@@ -26,7 +26,7 @@ app.add_middleware(
     allow_origins=[               # local dev
         "https://study-mate-ai-sigma.vercel.app/",
         
-        "http://localhost:3000",# deployed frontend on Vercel
+        "http://localhost:3001",# deployed frontend on Vercel
     ],
     allow_credentials=True,
     allow_methods=["*"],
