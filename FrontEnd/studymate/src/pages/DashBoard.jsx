@@ -372,10 +372,10 @@ const DashBoard = () => {
         showCloseIcon={false}
         position="right"
         onHide={() => setChatbotExpanded(false)}
-        style={{ width: '600px' }}
+        style={{ width: '500px' }}
       >
 
-        <div className="h-full flex w-full flex-col">
+        <div className="h-full flex  flex-col">
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 text-white w-full flex items-center">
             <ArrowLeft type='button' className='mr-5' onClick={() => setChatbotExpanded(false)} /> 
 
@@ -387,7 +387,7 @@ const DashBoard = () => {
               onClick={() => setChatbotExpanded(false)}
             />
           </div>
-          <div className="flex-1 w-full h-full overflow-auto">
+          <div className="flex-1  overflow-auto">
             <ChatBot />
           </div>
         </div>

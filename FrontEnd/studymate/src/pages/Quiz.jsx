@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { app } from "../firebase/firebase";
+const API_BASE = process.env.REACT_APP_API_URL;
 
 const Quiz = () => {
   const [file, setFile] = useState(null);
@@ -44,7 +45,7 @@ const Quiz = () => {
     formData.append("file", file);
 
     try {
-      const res = await fetch("http://localhost:8000/quiz", {
+      const res = await fetch(`${API_BASE}/quiz`, {
         method: "POST",
         body: formData,
       });

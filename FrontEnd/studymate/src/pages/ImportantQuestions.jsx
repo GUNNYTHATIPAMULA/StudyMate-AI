@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+const API_BASE = process.env.REACT_APP_API_URL;
 const ImportantQuestions = () => {
   const [file, setFile] = useState(null);
   const [questions, setQuestions] = useState([]);
@@ -28,7 +28,7 @@ const ImportantQuestions = () => {
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await fetch("http://localhost:8000/important_questions", {
+      const res = await fetch(`${API_BASE}/important_questions`, {
         method: "POST",
         body: formData,
       });
