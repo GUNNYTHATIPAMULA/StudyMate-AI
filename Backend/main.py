@@ -24,7 +24,7 @@ app.add_middleware(
     CORSMiddleware,
 
     allow_origins=[               # local dev
-        "https://study-mate-ai-sigma.vercel.app/",
+        "https://study-mate-ai-sigma.vercel.app",
         
         "http://localhost:3001",# deployed frontend on Vercel
     ],
