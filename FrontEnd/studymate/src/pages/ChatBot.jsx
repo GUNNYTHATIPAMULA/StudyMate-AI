@@ -28,38 +28,56 @@ const ChatBot = () => {
     setError('');
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!prompt && !file) {
-      setError('Please enter a prompt or upload a PDF');
-      return;
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  // Validation
+  if (!prompt && !file) {
+    setError("Please enter a prompt or upload a PDF");
+    return;
+  }
+
+  setError("");
+  setLoading(true);
+
+  try {
+    let response;
+
+    if (file) {
+      // ---- 📂 If PDF uploaded ----
+      const formData = new FormData();
+      formData.append("file", file);
+
+      response = await axios.post(`${API_BASE}/process_pdf`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    } else {
+      // ---- ✍️ If just prompt ----
+      response = await axios.post(`${API_BASE}/generate`, { prompt });
     }
 
-    setError('');
-    setLoading(true);
+    // ---- ✅ Extract result ----
+    const result = response.data?.result || "No response received";
 
-    try {
-      let response;
-      if (file) {
-        const formData = new FormData();
-        formData.append('file', file);
-        response = await axios.post(`${API_BASE}/process_pdf`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-      } else {
-        response = await axios.post(`${API_BASE}/generate`, { prompt });
-      }
+    // ---- 🕒 Append to chat history ----
+    setHistory((prev) => [
+      ...prev,
+      {
+        prompt: prompt || `📄 PDF: ${file?.name || "Uploaded file"}`,
+        response: result,
+      },
+    ]);
 
-      const result = response.data.result;
-      setHistory([...history, { prompt: prompt || `PDF: ${file?.name || 'Upload'}`, response: result }]);
-      setPrompt('');
-      setFile(null);
-    } catch (err) {
-      setError(`Error: ${err.response?.data?.detail || err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
+    // ---- 🧹 Clear input after submission ----
+    setPrompt("");
+    setFile(null);
+  } catch (err) {
+    console.error("Submission error:", err);
+    setError(`Error: ${err.response?.data?.detail || err.message}`);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-full bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 flex w-full flex-col items-center p-4">
