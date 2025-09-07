@@ -16,15 +16,22 @@ from typing import List
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# -------------------- Load ENV --------------------
 load_dotenv()
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+if not GEMINI_API_KEY:
+    raise RuntimeError("❌ GEMINI_API_KEY is missing. Set it in your environment variables.")
+
 # -------------------- FastAPI App --------------------
 app = FastAPI(title="StudyMate API", description="Granite for chat, Gemini for PDFs")
 
+# ✅ CORS setup: allow your Vercel frontend + local dev
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://study-mate-ai-sigma.vercel.app",  # ✅ deployed frontend
-        "http://localhost:3000",                   # ✅ local React dev
+        "https://study-mate-ai-sigma.vercel.app",  # Vercel deployed frontend
+        "http://localhost:3000",                   # Local React dev
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -32,9 +39,7 @@ app.add_middleware(
 )
 
 # -------------------- Gemini Setup --------------------
-GEMINI_API_KEY =  os.getenv("GEMINI_API_KEY")   # 🔑 your Gemini API key
 genai.configure(api_key=GEMINI_API_KEY)
-
 gemini_model = genai.GenerativeModel("gemini-2.5-flash")
 
 # -------------------- Schemas --------------------
@@ -59,66 +64,55 @@ def extract_pdf_text(pdf_bytes: bytes) -> str:
         raise HTTPException(status_code=400, detail=f"Error reading PDF: {str(e)}")
     
     if not text.strip():
-        raise HTTPException(status_code=400, detail="No text could be extracted from the PDF. It might be a scanned image or protected PDF.")
+        raise HTTPException(
+            status_code=400,
+            detail="No text could be extracted from the PDF. It might be scanned or protected."
+        )
     
     return text
 
-# -------------------- Important Questions --------------------
+# -------------------- Endpoints --------------------
 @app.post("/important_questions", response_model=QuestionResponse)
 async def extract_questions(file: UploadFile = File(...)):
     try:
-        # Check if file is PDF
         if not file.filename.lower().endswith('.pdf'):
             raise HTTPException(status_code=400, detail="Only PDF files are supported")
         
-        # Read and extract text from PDF
         contents = await file.read()
         text = extract_pdf_text(contents)
         
-        # Limit text length to avoid token limits
         if len(text) > 6000:
-            text = text[:3000] + text[-3000:]  # Take first and last parts
+            text = text[:3000] + text[-3000:]
         
-        # Create a more specific prompt
         prompt = f"""
-        Analyze the following document content and generate 15 to 20 important exam-style questions 
-        that would help someone study this material. Return ONLY the questions, one per line, 
-        without any numbering, prefixes, or additional text.
-        
+        Analyze the following document content and generate 15 to 20 important exam-style questions. 
+        Return ONLY the questions, one per line, without numbering.
+
         DOCUMENT CONTENT:
         {text}
         """
         
-        # Generate questions
         response = gemini_model.generate_content(prompt)
-        
-        # Process the response to extract questions
         raw_questions = response.text.strip()
         
-        # Split into individual questions and clean up
         questions = []
         for line in raw_questions.split('\n'):
             line = line.strip()
-            # Remove any numbering like "1.", "2)" etc.
-            line = re.sub(r'^\d+[\.\)]\s*', '', line)
-            if line and len(line) > 10:  # Ensure it's a reasonable question length
+            line = re.sub(r'^\d+[\.\)]\s*', '', line)  # Remove numbering
+            if line and len(line) > 10:
                 questions.append(line)
         
-        # Limit to 20 questions max
         questions = questions[:20]
         
         if not questions:
-            raise HTTPException(status_code=500, detail="No questions could be generated from the PDF content.")
+            raise HTTPException(status_code=500, detail="No questions could be generated.")
         
         return QuestionResponse(questions=questions, model_used="gemini-2.5-flash")
-        
-    except HTTPException:
-        raise
+    
     except Exception as e:
         logger.error(f"Important questions error: {e}")
         raise HTTPException(status_code=500, detail=f"Error extracting questions: {str(e)}")
 
-# -------------------- Other endpoints remain the same --------------------
 @app.post("/generate")
 async def generate_response(request: PromptRequest):
     try:
@@ -161,10 +155,10 @@ async def generate_quiz(file: UploadFile = File(...)):
         From this document, generate 20 multiple-choice quiz questions in valid JSON format.
         Each question must have:
         - "question": the question text
-        - "options": a list of 4 options like ["A. ...", "B. ...", "C. ...", "D. ..."]
+        - "options": a list of 4 options
         - "answer": the correct option letter ("A", "B", "C", or "D")
 
-        Only return JSON array, no explanations.
+        Return ONLY JSON array, no explanations.
 
         Content:
         {text[:10000]}
@@ -173,7 +167,6 @@ async def generate_quiz(file: UploadFile = File(...)):
         response = gemini_model.generate_content(prompt)
         raw_text = response.text.strip()
 
-        # 🔹 Try extracting valid JSON (handles extra text around JSON)
         try:
             quiz_data = json.loads(raw_text)
         except:
