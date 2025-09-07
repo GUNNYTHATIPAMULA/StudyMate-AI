@@ -29,10 +29,7 @@ app = FastAPI(title="StudyMate API", description="Granite for chat, Gemini for P
 # ✅ CORS setup: allow your Vercel frontend + local dev
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://study-mate-ai-steel.vercel.app",  # Vercel deployed frontend
-        "http://localhost:3000",                   # Local React dev
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
