@@ -33,37 +33,42 @@ const Quiz = () => {
     }
   };
 
-  const fetchImportantQuestions = async () => {
+  const fetchQuiz = async () => {
   if (!file) {
-    setError("Please upload a PDF first!");
+    alert("Please upload a PDF first!");
     return;
   }
 
+  setLoading(true);
+  setProgress(30);
+
+  const formData = new FormData();
+  formData.append("file", file);
+
   try {
-    setLoading(true);
-    setError("");
-    setQuestions([]);
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const res = await fetch(`${API_BASE}/important_questions`, {
+    const res = await fetch(`${API_BASE}/quiz`, {
       method: "POST",
       body: formData,
     });
 
-    if (!res.ok) throw new Error("Failed to fetch questions");
+    setProgress(70);
+
+    if (!res.ok) throw new Error("Failed to fetch quiz");
 
     const data = await res.json();
 
-    // ✅ Backend already sends an array → just set it
-    const parsedQuestions = Array.isArray(data.questions)
-      ? data.questions.slice(0, 20)
-      : [];
+    // ✅ Ensure it's an array
+    const quizData = Array.isArray(data.quiz) ? data.quiz : [];
 
-    setQuestions(parsedQuestions);
+    setQuiz(quizData);
+    setCurrentIndex(0);
+    setProgress(100);
+
+    // Reset progress after a short delay
+    setTimeout(() => setProgress(0), 1000);
   } catch (err) {
-    setError(err.message || "Something went wrong");
+    alert(err.message || "Error generating quiz!");
+    setProgress(0);
   } finally {
     setLoading(false);
   }
