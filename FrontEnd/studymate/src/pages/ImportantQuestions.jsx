@@ -15,41 +15,40 @@ const ImportantQuestions = () => {
 
   // Send file to backend & fetch questions
   const fetchImportantQuestions = async () => {
-    if (!file) {
-      setError("Please upload a PDF first!");
-      return;
-    }
+  if (!file) {
+    setError("Please upload a PDF first!");
+    return;
+  }
 
-    try {
-      setLoading(true);
-      setError("");
-      setQuestions([]);
+  try {
+    setLoading(true);
+    setError("");
+    setQuestions([]);
 
-      const formData = new FormData();
-      formData.append("file", file);
+    const formData = new FormData();
+    formData.append("file", file);
 
-      const res = await fetch(`${API_BASE}/important_questions`, {
-        method: "POST",
-        body: formData,
-      });
+    const res = await fetch(`${API_BASE}/important_questions`, {
+      method: "POST",
+      body: formData,
+    });
 
-      if (!res.ok) throw new Error("Failed to fetch questions");
+    if (!res.ok) throw new Error("Failed to fetch questions");
 
-      const data = await res.json();
+    const data = await res.json();
 
-      // Gemini returns text → split into questions
-      const parsedQuestions = data.questions
-        .split("\n")
-        .filter((q) => q.trim() !== "")
-        .slice(0, 20); // show max 20
+    // ✅ Backend already sends an array → just set it
+    const parsedQuestions = Array.isArray(data.questions)
+      ? data.questions.slice(0, 20)
+      : [];
 
-      setQuestions(parsedQuestions);
-    } catch (err) {
-      setError(err.message || "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  };
+    setQuestions(parsedQuestions);
+  } catch (err) {
+    setError(err.message || "Something went wrong");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
   <div className="w-full p-6 bg-white rounded-xl shadow-lg">
