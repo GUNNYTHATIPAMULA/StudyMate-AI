@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
-import { Bot } from 'lucide-react';
+import { Bot, Upload } from 'lucide-react';
 const API_BASE = process.env.REACT_APP_API_URL;
 
 const ChatBot = () => {
@@ -80,110 +80,90 @@ const ChatBot = () => {
 };
 
   return (
-    <div className="min-h-full bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 flex w-full flex-col items-center p-4">
-      <div className="w-full ">
-        <h1 className="text-3xl flex flex-col items-center justify-center  dark:text-gray-100 text-center font-semibold text-indigo-600 tracking-wide mb-0">
-          StudyHub ChatBot
-          <p> <Bot className='w-20 h-20 mt-3 text-white' /></p>
-        </h1>
-        
-        <div className="bg-white dark:bg-gray-800 rounded-lg h-full shadow-lg p-6">
-          {/* Chat History */}
-          <div className="h-full overflow-y-auto mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-md">
-            {history.length === 0 && (
-              <p className="text-gray-500 dark:text-gray-400 text-center">
-                Start chatting by entering a prompt or uploading a PDF!
-              </p>
-            )}
-            {history.map((entry, index) => (
-              <div key={index} className="mb-4">
-                {/* User Message */}
-                <div className="flex justify-end">
-                  <div className="flex items-start gap-2 max-w-md">
-                    <div className="bg-blue-100 dark:bg-blue-600 text-blue-800 dark:text-blue-100 p-3 rounded-lg shadow-sm">
-                      <p className="font-semibold">You:</p>
-                      <p>{entry.prompt}</p>
-                    </div>
-                  </div>
-                </div>
-                {/* Bot Response */}
-                <div className="flex justify-start mt-2">
-                  <div className="flex items-start gap-2 max-w-md">
-                    <div className="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-100 p-3 rounded-lg shadow-sm">
-                      <p className="font-semibold flex"><Bot className=" h-6 w-6 mr-1" />Bot :</p>
-                      <div className="prose dark:prose-invert">
-                        <ReactMarkdown>{entry.response}</ReactMarkdown>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+  <div className="  h-full w-full bg-gradient-to-b from-gray-900 to-gray-950 text-white shadow-xl flex flex-col">
 
-          {/* Input Section */}
-          <div className="space-y-4">
-            {error && (
-              <div className="bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-100 p-3 rounded-md shadow-sm">
-                {error}
-              </div>
-            )}
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <div className="flex flex-col gap-3">
-                <input
-                  type="text"
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Enter your prompt"
-                  disabled={loading}
-                  className="flex-1 p-3 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 disabled:bg-gray-200 dark:disabled:bg-gray-600"
-                  aria-label="Prompt input"
-                />
-                <div className="relative w-full">
-                  <input
-                    type="file"
-                    accept=".pdf"
-                    onChange={handleFileChange}
-                    disabled={loading}
-                    className="p-1 border w-full border-gray-300 dark:border-gray-600 rounded-md text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 disabled:bg-gray-200 dark:disabled:bg-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-600 file:text-white file:hover:bg-blue-700"
-                    aria-label="PDF upload"
-                  />
-                  {file && (
-                    <div className="absolute top-2 right-2 flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                      <button
-                        type="button"
-                        onClick={() => setFile(null)}
-                        className="text-red-500 hover:text-red-700"
-                        aria-label="Clear file"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 bg-blue-600 text-white mt-2 py-4 rounded-md hover:bg-blue-700 transition disabled:bg-blue-400 dark:disabled:bg-blue-500 shadow-sm"
-                >
-                  {loading ? 'Processing...' : 'Send'}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleClear}
-                  disabled={loading || (!prompt && !file)}
-                  className="px-4 py-2 bg-gray-300 mt-2 dark:bg-gray-600 text-gray-800 dark:text-gray-100 rounded-md hover:bg-gray-400 dark:hover:bg-gray-500 transition disabled:bg-gray-200 dark:disabled:bg-gray-500 shadow-sm"
-                >
-                  Clear
-                </button>
-              </div>
-            </form>
+
+  {/* Chat Messages */}
+  <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    {history.length === 0 && (
+      <p className="text-gray-400 text-center mt-10">
+        
+        Start chatting by entering a prompt or uploading a PDF 📄
+      </p>
+    )}
+
+    {history.map((entry, index) => (
+      <div key={index} className="space-y-2">
+        {/* User Message */}
+        <div className="flex justify-end">
+          <div className="bg-blue-600 text-white p-3 rounded-2xl rounded-br-sm max-w-xs shadow">
+            {entry.prompt}
+          </div>
+        </div>
+
+        {/* Bot Response */}
+        <div className="flex justify-start">
+          <div className="bg-gray-800 text-gray-100 text-xs p-3 rounded-2xl rounded-bl-sm max-w-xs shadow">
+            <p className="flex items-center font-semibold mb-1 text-indigo-400">
+              <Bot className="h-4 w-4 mr-1" /> Bot
+            </p>
+           <div className="prose">
+  <ReactMarkdown>
+    {entry.response}
+  </ReactMarkdown>
+</div>
           </div>
         </div>
       </div>
-    </div>
+    ))}
+  </div>
+
+  {/* Input Area */}
+  <form
+    onSubmit={handleSubmit}
+    className="border-t border-gray-700 p-3 flex items-center gap-3 bg-gray-900"
+  >
+    {/* Text Input */}
+    <input
+      type="text"
+      value={prompt}
+      onChange={(e) => setPrompt(e.target.value)}
+      placeholder="Type your message..."
+      disabled={loading}
+      className="flex-1 p-2 rounded-lg border border-gray-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-60"
+    />
+
+    {/* File Upload */}
+    <label className="relative flex items-center justify-center w-10 h-10 rounded-lg border border-gray-700 bg-gray-800 cursor-pointer hover:border-indigo-500 transition">
+      <Upload className="w-5 h-5 text-gray-400" />
+      <input
+        type="file"
+        accept=".pdf"
+        onChange={handleFileChange}
+        disabled={loading}
+        className="absolute inset-0 opacity-0 cursor-pointer"
+      />
+      {file && (
+        <div className="absolute -top-1 -right-1 w-3 h-3 bg-indigo-500 rounded-full border-2 border-gray-900"></div>
+      )}
+    </label>
+
+    {/* Send Button */}
+    <button
+      type="submit"
+      disabled={loading}
+      className="w-10 h-10 flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition shadow disabled:bg-indigo-400"
+    >
+      {loading ? (
+        <div className="animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4"></div>
+      ) : (
+        "➤"
+      )}
+    </button>
+  </form>
+</div>
+
+
   );
 };
 
